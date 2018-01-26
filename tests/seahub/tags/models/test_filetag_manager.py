@@ -25,10 +25,14 @@ class FileTagManagerTest(BaseTestCase):
         data = FileTag.objects.get_or_create_file_tag(self.repo.id, '/', 'q.q', True, 'test_exists', self.user.username)
         data = FileTag.objects.exists_filetag(uuid, 'test_exists')
         assert ('test_exists', True) == (data[0].tag.name, True)
-        
+
     def test_get_all_file_tag_by_path(self):
         data = FileTag.objects.get_or_create_file_tag(self.repo.id, '/', 'q.2', True, 'test_get_all', self.user.username)
         assert data[0].tag.name in [e.tag.name for e in FileTag.objects.get_all_file_tag_by_path(self.repo.id, '/', 'q.2', True)]
+
+    def test_get_file_tags_by_parent_path(self):
+        data = FileTag.objects.get_or_create_file_tag(self.repo.id, '/', 'file_tags', False, 'test_get_tags', self.user.username)
+        assert data[0].tag.name in [e.tag.name for e in FileTag.objects.get_file_tags_by_parent_path(self.repo.id, '/')]
 
     def test_delete_one(self):
         args = (self.repo.id, '/', 'q.q', True, 'test_tag', self.user.username)

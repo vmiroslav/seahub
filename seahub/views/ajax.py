@@ -54,6 +54,7 @@ from seahub.share.utils import is_repo_admin
 from seahub.base.templatetags.seahub_tags import translate_seahub_time, \
     email2nickname, tsstr_sec
 from seahub.constants import PERMISSION_ADMIN
+from seahub.tags.models import FileTag
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -334,6 +335,12 @@ def list_lib_dir(request, repo_id):
 
     size = int(request.GET.get('thumbnail_size', THUMBNAIL_DEFAULT_SIZE))
 
+    files_tags = FileTag.objects.get_file_tags_by_parent_path(repo_id, path)
+    file_tags_dict = {}
+    for file_tag in files_tags:
+        filename = file_tag.uuid.filename
+        file_tags_dict.setdefault(filename, []).append(file_tag.tag.name)
+
     for f in file_list:
         f_ = {}
         f_['is_file'] = True
@@ -344,6 +351,7 @@ def list_lib_dir(request, repo_id):
         f_['file_size'] = filesizeformat(f.file_size)
         f_['obj_id'] = f.obj_id
         f_['perm'] = f.permission # perm for file in current dir
+        f_['tags'] = file_tags_dict.get(f.obj_name, [])
 
         file_type, file_ext = get_file_type_and_ext(f.obj_name)
         if file_type == IMAGE:

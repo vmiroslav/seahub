@@ -125,6 +125,12 @@ class FileTagManager(models.Manager):
             uuid=uuid
         )
 
+    def get_file_tags_by_parent_path(self, repo_id, parent_path):
+        uuids = FileUUIDMap.objects.get_fileuuidmaps_by_parent_path(repo_id, parent_path)
+        return super(FileTagManager, self).select_related('uuid', 'tag').filter(
+            uuid=uuids
+        )
+
     def delete_file_tag_by_path(self, repo_id, parent_path, filename, is_dir, tagname):
         """ delete one specific filetag
             args:
